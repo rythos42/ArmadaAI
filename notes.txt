@@ -1,0 +1,59 @@
+Todo
+- put up at GitHub
+
+- ability to place ship at different locations
+- change rules to win if you have a corner pointed at enemy ship
+- ability to turn
+- positioning of some kind
+    random?
+    hard flank?
+    grouped?
+- multiple ships    
+- update win conditions:
+    - better if you can double-arc
+    - good if you can get to the range the ship wants to be at
+    - good if you can stay beyond the ranges the opponent wants to be at
+- ensure it can go beyond the beginning moves (ie, past a ship)
+- enable ships to go speed 4
+
+- "opening book" to automate early moves based on fleet characteristics
+- "finishing book" to automate turn in/turn out decision
+- alphabeta pruning
+    - https://stackabuse.com/minimax-and-alpha-beta-pruning-in-python/
+
+
+Tech Debt:
+- arcs and ship scaling may not be the same as map because it's scaled seperately
+- pylint disabled because it's a minor pain to appease
+
+Useful:
+    Draw polygons associated with a mask
+        olist = first_player_ship.black_mask.outline()
+        pygame.draw.polygon(screen, (200, 150, 150), olist, 0)
+    https://boardgamegeek.com/filepage/188857/eds-armada-robot-player
+
+Distances:
+    maps are 4320x2160px
+    Small base 43* mm x 71 mm base.
+    Medium base 149x243, @ 23.62 px / cm        63* mm x 102 mm 
+    Large base 77.5* mm x 129 mm base.
+    tool is 6.8cm travel distance in a straight line
+
+    Distances:
+    1. 3" (77mm)
+    2. 4 15/16" (125mm)
+    3. 7 5/16" (185mm)
+    4. 9 7/16" (245mm)
+    5. 1 foot
+
+    Ranges:
+    Close: 4 7/8" (124mm)
+    Medium: 7 3/8" (188mm)
+    Long: 1 foot
+
+v0.1:
+- Ships start at points on number line, 1-10
+- Each ship can move 1, 2 or 3
+- AI takes first turn
+- Game ends if ships are touching or overlapping
+- Game is won if you start your turn touching the opponent
