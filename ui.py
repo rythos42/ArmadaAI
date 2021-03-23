@@ -13,7 +13,7 @@ screen = pygame.display.set_mode([screen_board.SCREEN_WIDTH, screen_board.SCREEN
                                  pygame.HWSURFACE | pygame.DOUBLEBUF)
 map = pygame.transform.scale(pygame.image.load("img/map_scarif_shieldgate_v3.jpg"),
                              (screen_board.SCREEN_WIDTH, screen_board.SCREEN_HEIGHT))
-ship = pygame.image.load("img/ship_munificent noFade.png").convert()
+ship = pygame.image.load("img/ship_munificent noFade.png").convert_alpha()
 arcs = pygame.image.load("img/arcs_v5_munificent.png").convert_alpha()
 clock = pygame.time.Clock()
 
@@ -24,11 +24,13 @@ ship = pygame.transform.scale(ship, (int(original_ship_rect.width / screen_board
 arcs = pygame.transform.scale(arcs, (int(original_arcs_rect.width / screen_board.SCALING),
                                      int(original_arcs_rect.height / screen_board.SCALING)))
 
+first_ship_x = screen_board.SCREEN_MIDDLE
+second_ship_x = screen_board.SCREEN_MIDDLE
+
 first_player_ship = Ship("First", 0, 1, ship, arcs)
 second_player_ship = Ship("Second", 1, -1, ship, arcs)
-first_player_ship.direct_move(screen_board.SCREEN_MIDDLE,
-                              screen_board.SCREEN_DISTANCE_3_TOP - first_player_ship.rect.height)
-second_player_ship.direct_move(screen_board.SCREEN_MIDDLE, screen_board.SCREEN_DISTANCE_3_BOTTOM)
+first_player_ship.place(first_ship_x, screen_board.SCREEN_DISTANCE_3_TOP - first_player_ship.rect.height)
+second_player_ship.place(second_ship_x, screen_board.SCREEN_DISTANCE_3_BOTTOM)
 
 the_game = Game(first_player_ship, second_player_ship)
 # the_game.set_using_ai_log_file(False)

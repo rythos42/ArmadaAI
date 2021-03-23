@@ -1,13 +1,16 @@
 Todo
-- put up at GitHub
+- allow AI to turn
+    - only turn _towards_ opponent, outside turns.
+    - turning away feels like it will lead to infinite computation times
+    - consider inside turns at a later time
+- allow player to turn
 
-- ability to place ship at different locations
 - change rules to win if you have a corner pointed at enemy ship
-- ability to turn
-- positioning of some kind
+- initial positioning of some kind
     random?
     hard flank?
     grouped?
+    - if AI can still only turn towards opponent, this might inform the types of possible setups
 - multiple ships    
 - update win conditions:
     - better if you can double-arc
@@ -15,6 +18,7 @@ Todo
     - good if you can stay beyond the ranges the opponent wants to be at
 - ensure it can go beyond the beginning moves (ie, past a ship)
 - enable ships to go speed 4
+- enable ships to be better at different ranges
 
 - "opening book" to automate early moves based on fleet characteristics
 - "finishing book" to automate turn in/turn out decision
@@ -50,6 +54,11 @@ Distances:
     Close: 4 7/8" (124mm)
     Medium: 7 3/8" (188mm)
     Long: 1 foot
+
+v0.2:
+- Added graphics, Munificent ships, arcs
+- Added ships able to move straight line distances equivalent to table top
+- Updated game rules to win if you start your turn within black range of opponent
 
 v0.1:
 - Ships start at points on number line, 1-10
