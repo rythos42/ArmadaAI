@@ -1,4 +1,8 @@
 Todo
+- alphabeta pruning
+    - https://stackabuse.com/minimax-and-alpha-beta-pruning-in-python/
+
+
 - allow AI to turn
     - only turn _towards_ opponent, outside turns.
     - turning away feels like it will lead to infinite computation times
@@ -22,8 +26,6 @@ Todo
 
 - "opening book" to automate early moves based on fleet characteristics
 - "finishing book" to automate turn in/turn out decision
-- alphabeta pruning
-    - https://stackabuse.com/minimax-and-alpha-beta-pruning-in-python/
 
 
 Tech Debt:

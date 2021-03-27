@@ -38,6 +38,9 @@ class Ship(pygame.sprite.Sprite):
 
         return in_black_range != None
 
+    def is_off_table(self):
+        return self.rect.x < 0 or self.rect.y < 0 or self.rect.bottom > screen_board.SCREEN_HEIGHT or self.rect.right > screen_board.SCREEN_WIDTH
+
     def move(self, distance):
         screen_distance = distance * screen_board.STRAIGHT_LINE_MOVE_DISTANCE
 

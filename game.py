@@ -13,6 +13,7 @@ class Game:
     def is_finished(self):
         return (self.first_player_ship.is_overlapping(self.second_player_ship)
                 or self.first_player_ship.is_within_black_range(self.second_player_ship)
+                or self.first_player_ship.is_off_table() or self.second_player_ship.is_off_table()
                 or self.player_turn == 12)
 
     def get_player_turn_id(self):
@@ -32,6 +33,14 @@ class Game:
         if(self.first_player_ship.is_overlapping(self.second_player_ship)):
             self.write_ai_log_file(f"Tie by overlap.")
             return None
+
+        if(self.first_player_ship.is_off_table()):
+            self.write_ai_log_file(f"Second player wins by opponent off table.")
+            return self.second_player_ship
+
+        if(self.second_player_ship.is_off_table()):
+            self.write_ai_log_file(f"First player wins by opponent off table.")
+            return self.first_player_ship
 
         if(self.first_player_ship.is_within_black_range(self.second_player_ship)):
             if(self.is_player_turn(self.first_player_ship)):
