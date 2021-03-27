@@ -27,25 +27,19 @@ arcs = pygame.transform.scale(arcs, (int(original_arcs_rect.width / screen_board
 first_ship_x = screen_board.SCREEN_MIDDLE
 second_ship_x = screen_board.SCREEN_MIDDLE
 
-first_player_ship = Ship("First", 0, 1, ship, arcs)
-second_player_ship = Ship("Second", 1, -1, ship, arcs)
+first_player_ship = Ship("First", 0, 180, ship, arcs)
+second_player_ship = Ship("Second", 1, 0, ship, arcs)
 first_player_ship.place(first_ship_x, screen_board.SCREEN_DISTANCE_3_TOP - first_player_ship.rect.height)
 second_player_ship.place(second_ship_x, screen_board.SCREEN_DISTANCE_3_BOTTOM)
 
 the_game = Game(first_player_ship, second_player_ship)
 # the_game.set_using_ai_log_file(False)
 
-show_arcs = True
-
 
 def draw_screen():
     screen.blit(map, (0, 0))
-    if(show_arcs):
-        screen.blit(first_player_ship.arcs, first_player_ship.arcs_rect)
-    screen.blit(first_player_ship.ship, first_player_ship.rect)
-    if(show_arcs):
-        screen.blit(second_player_ship.arcs, second_player_ship.arcs_rect)
-    screen.blit(second_player_ship.ship, second_player_ship.rect)
+    first_player_ship.draw(screen)
+    second_player_ship.draw(screen)
     pygame.draw.line(screen, screen_board.COLOUR_WHITE, (0, screen_board.SCREEN_DISTANCE_3_TOP),
                      (screen_board.SCREEN_WIDTH, screen_board.SCREEN_DISTANCE_3_TOP))
     pygame.draw.line(screen, screen_board.COLOUR_WHITE, (0, screen_board.SCREEN_DISTANCE_3_BOTTOM),

@@ -4,6 +4,8 @@ import screen_board
 
 
 class Ship(pygame.sprite.Sprite):
+    show_arcs = False
+
     def __init__(self, name, player_id, facing, ship, arcs, clone=False):
         self.name = name
         self.player_id = player_id
@@ -140,6 +142,14 @@ class Ship(pygame.sprite.Sprite):
         clone_ship.rect = self.rect.copy()
         clone_ship.arcs_rect = self.arcs_rect.copy()
         return clone_ship
+
+    def set_show_arcs(self, show_arcs):
+        self.show_arcs = show_arcs
+
+    def draw(self, screen):
+        if(self.show_arcs):
+            screen.blit(self.arcs, self.arcs_rect)
+        screen.blit(self.ship, self.rect)
 
     def __generate_masks(self):
         black = (0, 0, 0)
