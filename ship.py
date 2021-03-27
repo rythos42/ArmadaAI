@@ -10,17 +10,16 @@ class Ship(pygame.sprite.Sprite):
         self.facing = facing
         self.ship = ship
         self.arcs = arcs
-        self.rect = ship.get_rect()
         self.mask = pygame.mask.from_surface(self.ship)
         self.ship_mask = self.mask
-        self.arcs_rect = self.arcs.get_rect()
 
         if(not clone):
-            if(facing > 0):
-                self.ship = pygame.transform.rotate(self.ship, 180)
-                self.arcs = pygame.transform.rotate(self.arcs, 180)
-
+            self.ship = pygame.transform.rotate(self.ship, facing)
+            self.arcs = pygame.transform.rotate(self.arcs, facing)
             self.__generate_masks()
+
+        self.rect = self.ship.get_rect()
+        self.arcs_rect = self.arcs.get_rect()
 
     def is_overlapping(self, other_ship):
         return pygame.sprite.collide_mask(self, other_ship) != None
@@ -38,10 +37,42 @@ class Ship(pygame.sprite.Sprite):
         return in_black_range != None
 
     def move(self, distance):
-        # facing is -1 or 1, which defines which direction the ship is moving
-        screen_move_distance = distance * screen_board.STRAIGHT_LINE_MOVE_DISTANCE * self.facing
-        self.rect.move_ip(0, screen_move_distance)
-        self.arcs_rect.move_ip(0, screen_move_distance)
+        screen_distance = distance * screen_board.STRAIGHT_LINE_MOVE_DISTANCE
+
+        if(self.facing == 0):   # straight up
+            x_move = 0
+            y_move = screen_distance * -1
+        elif(self.facing == 90):  # straight right
+            x_move = screen_distance
+            y_move = 0
+        elif(self.facing == 180):  # straight down
+            x_move = 0
+            y_move = screen_distance
+        elif(self.facing == 270):  # straight left
+            x_move = screen_distance * -1
+            y_move = 0
+        else:
+            # rotation is counter-clockwise
+            angle = self.facing % 90    # angle is always comparing against the closest 90deg angle to 0
+            amount = self.facing / 90
+            adjacent = math.fabs(screen_distance * math.cos(math.radians(angle)))
+            opposite = math.fabs(screen_distance * math.sin(math.radians(angle)))
+
+            if(amount < 1):  # upper left
+                x_move = opposite * -1
+                y_move = adjacent * -1
+            elif(amount < 2):  # lower left
+                x_move = adjacent * -1
+                y_move = opposite
+            elif(amount < 3):  # lower right
+                x_move = opposite
+                y_move = adjacent
+            elif(amount < 4):  # upper right
+                x_move = adjacent
+                y_move = opposite * -1
+
+        self.rect.move_ip(x_move, y_move)
+        self.arcs_rect.move_ip(x_move, y_move)
 
     def place(self, screen_x, screen_y):
         self.rect.move_ip(screen_x, screen_y)
@@ -71,24 +102,25 @@ class Ship(pygame.sprite.Sprite):
         else:
             raise ValueError("`direction` can only be `left` or `right`.")
 
-        old_rect = self.rect.copy()
+        # update the facing, keep the number below 360deg
+        self.facing = (self.facing + degrees) % 360
+        upsidedown = self.facing > 90 and self.facing < 270
 
         # rotate image
         rotated_image = pygame.transform.rotate(self.ship, degrees)
         new_rect = rotated_image.get_rect()
 
-        # if upsidedown, place the front of the ship at the place it was before rotating
-        new_rect.y = self.rect.bottom - new_rect.height if self.facing > 0 else self.rect.y
-
-        # place the new center y of the image at a point on the triangle created by the rotation of the sin(degrees) * hypotenus_length
-        (new_center_x, new_center_y) = new_rect.center
+        # place the y of the image at a point on the triangle created by the rotation of the sin(degrees) * hypotenus_length
+        new_rect.y = self.rect.bottom - new_rect.height if upsidedown else self.rect.y
         opposite = math.fabs(math.sin(math.radians(degrees)) * self.rect.width)
-        opposite = opposite if self.facing < 0 else opposite * -1
-        new_rect.centerx = new_center_x
-        new_rect.centery = new_center_y - opposite
+        opposite = opposite * -1 if upsidedown else opposite
+        new_rect.y = new_rect.y - opposite
 
-        # place the edge we rotated around at the edge of the original rect, left happens by default
-        new_rect.x = self.rect.x if direction == "left" else self.rect.right - new_rect.width
+        # place the edge we rotated around at the edge of the original rect
+        if(direction == "right"):
+            new_rect.x = self.rect.x if upsidedown else self.rect.right - new_rect.width
+        else:
+            new_rect.x = self.rect.x if not upsidedown else self.rect.right - new_rect.width
 
         # set class variables
         self.ship = rotated_image
