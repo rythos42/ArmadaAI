@@ -1,15 +1,4 @@
 Todo
-- yaw isn't right :(. 
-    - I was originally planning on:
-        - move forward to middle of tool circle
-        - pivot around nearest point
-        - continue forward remaining distance
-    - But ended up just doing:
-        - move forward distance 1
-        - pivot around nearest point
-    - which is off by 1/4" or so :(
-
-
 - move ships to start at a "post-opening book" position?
 - allow AI to turn, only towards opponent
 - allow player to turn
@@ -37,6 +26,7 @@ Todo
 Far Future?
 - allow AI to turn out?
 - allow AI to do inside turns?
+- Can't currently go speed 0, is this valuable/important?
 
 Tech Debt:
 - arcs and ship scaling may not be the same as map because it's scaled seperately
@@ -56,7 +46,6 @@ Distances:
     Small base 43* mm x 71 mm base.
     Medium base 149x243, @ 23.62 px / cm        63* mm x 102 mm 
     Large base 77.5* mm x 129 mm base.
-    tool is 6.8cm travel distance in a straight line
 
     Distances:
     1. 3" (77mm)

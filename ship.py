@@ -65,26 +65,33 @@ class Ship(pygame.sprite.Sprite):
         return self.rect.x < 0 or self.rect.y < 0 or self.rect.bottom > screen_board.SCREEN_HEIGHT or self.rect.right > screen_board.SCREEN_WIDTH
 
     def move(self, distance):
-        screen_distance = distance * screen_board.STRAIGHT_LINE_MOVE_DISTANCE
+        screen_distance = distance * screen_board.SCREEN_TOOL_1_LENGTH
+        self.__move_pixels(screen_distance)
 
+    def move_yaw(self, clicks):
+        self.__move_pixels(screen_board.SCREEN_PRE_TOOL_CIRCLE_LENGTH)
+        self.__yaw(clicks)
+        self.__move_pixels(screen_board.SCREEN_POST_TOOL_CIRCLE_LENGTH)
+
+    def __move_pixels(self, pixels):
         if(self.facing == 0):   # straight up
             x_move = 0
-            y_move = screen_distance * -1
+            y_move = pixels * -1
         elif(self.facing == 90):  # straight right
-            x_move = screen_distance
+            x_move = pixels
             y_move = 0
         elif(self.facing == 180):  # straight down
             x_move = 0
-            y_move = screen_distance
+            y_move = pixels
         elif(self.facing == 270):  # straight left
-            x_move = screen_distance * -1
+            x_move = pixels * -1
             y_move = 0
         else:
             # rotation is counter-clockwise
             angle = self.facing % 90    # angle is always comparing against the closest 90deg angle to 0
             amount = self.facing / 90
-            adjacent = math.fabs(screen_distance * math.cos(math.radians(angle)))
-            opposite = math.fabs(screen_distance * math.sin(math.radians(angle)))
+            adjacent = math.fabs(pixels * math.cos(math.radians(angle)))
+            opposite = math.fabs(pixels * math.sin(math.radians(angle)))
 
             if(amount < 1):  # upper left
                 x_move = opposite * -1
@@ -109,17 +116,18 @@ class Ship(pygame.sprite.Sprite):
         height_diff_one_side = (self.arcs_rect.height - self.rect.height) / 2
         self.arcs_rect.move_ip(screen_x - width_diff_one_side, screen_y - height_diff_one_side)
 
-    def yaw(self, clicks):
+    # Only performs outside turns. Clicks is -2, -1, 0, 1, 2
+    def __yaw(self, clicks):
         if(clicks == 0):
             return
         elif(clicks == -1):
-            degrees = -20
-        elif(clicks == 1):
             degrees = 20
+        elif(clicks == 1):
+            degrees = -20
         elif(clicks == -2):
-            degrees = -45
-        elif(clicks == 2):
             degrees = 45
+        elif(clicks == 2):
+            degrees = -45
         else:
             raise ValueError("`clicks` can only be -2, -1, 0, 1 or 2.")
 
@@ -139,9 +147,15 @@ class Ship(pygame.sprite.Sprite):
 
         # place the edge we rotated around at the edge of the original rect
         if(degrees > 0):
-            new_rect.x = self.rect.x if upsidedown else self.rect.right - new_rect.width
+            if(upsidedown):
+                new_rect.right = self.rect.right
+            else:
+                new_rect.left = self.rect.left
         else:
-            new_rect.x = self.rect.x if not upsidedown else self.rect.right - new_rect.width
+            if(upsidedown):
+                new_rect.left = self.rect.left
+            else:
+                new_rect.right = self.rect.right
 
         # set class variables
         self.ship = rotated_image

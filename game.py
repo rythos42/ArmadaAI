@@ -55,8 +55,7 @@ class Game:
 
     def do_move(self, ship, move):
         for move_item in move:
-            ship.move(1)
-            ship.yaw(move_item[1])
+            ship.move_yaw(move_item[1])
         self.player_turn = self.player_turn + 1
 
     def clone(self):
