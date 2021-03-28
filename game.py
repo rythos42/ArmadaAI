@@ -97,6 +97,9 @@ class Game:
         return "".rjust(self.tabs, "\t")
 
     def get_best_move_for_first_player(self):
+        return self.__get_best_move_for_first_player(-2, 2)
+
+    def __get_best_move_for_first_player(self, alpha, beta):
         max_game_value = -2
         move = None
 
@@ -111,18 +114,24 @@ class Game:
             self.write_ai_log_file(f"Trying {trying_move} for {self.first_player_ship.name}.")
 
             self.tabs = self.tabs + 1
-            (game_value, unused_move) = imaginary_game.get_best_move_for_second_player()
+            (game_value, unused_move) = imaginary_game.__get_best_move_for_second_player(alpha, beta)
             self.tabs = self.tabs - 1
 
             self.write_ai_log_file(f"Move {trying_move} for {self.first_player_ship.name} got value {game_value}.")
 
-            if game_value > max_game_value:
+            if (game_value > max_game_value):
                 max_game_value = game_value
                 move = trying_move
 
+            if (max_game_value >= beta):
+                return (max_game_value, move)
+
+            if(max_game_value > alpha):
+                alpha = max_game_value
+
         return (max_game_value, move)
 
-    def get_best_move_for_second_player(self):
+    def __get_best_move_for_second_player(self, alpha, beta):
         min_game_value = 2
         move = None
 
@@ -142,8 +151,14 @@ class Game:
             self.tabs = self.tabs - 1
             self.write_ai_log_file(f"Move {trying_move} for {self.second_player_ship.name} got value {game_value}.")
 
-            if game_value < min_game_value:
+            if(game_value < min_game_value):
                 min_game_value = game_value
                 move = trying_move
+
+            if(min_game_value <= alpha):
+                return (min_game_value, move)
+
+            if(min_game_value < beta):
+                beta = min_game_value
 
         return (min_game_value, move)

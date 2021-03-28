@@ -1,10 +1,17 @@
 Todo
+- yaw isn't right :(. 
+    - I was originally planning on:
+        - move forward to middle of tool circle
+        - pivot around nearest point
+        - continue forward remaining distance
+    - But ended up just doing:
+        - move forward distance 1
+        - pivot around nearest point
+    - which is off by 1/4" or so :(
 
-- alphabeta pruning
-    - https://stackabuse.com/minimax-and-alpha-beta-pruning-in-python/
 
-- allow AI to turn
-    - only turn _towards_ opponent, outside turns.
+- move ships to start at a "post-opening book" position?
+- allow AI to turn, only towards opponent
 - allow player to turn
 
 - change rules to win if you have a corner pointed at enemy ship
@@ -39,7 +46,10 @@ Useful:
     Draw polygons associated with a mask
         olist = first_player_ship.black_mask.outline()
         pygame.draw.polygon(screen, (200, 150, 150), olist, 0)
-    https://boardgamegeek.com/filepage/188857/eds-armada-robot-player
+    Armada Robot        https://boardgamegeek.com/filepage/188857/eds-armada-robot-player
+    Pygame Tutorial     https://realpython.com/pygame-a-primer/#sprites
+    Minmax+ABpruning    https://stackabuse.com/minimax-and-alpha-beta-pruning-in-python/
+
 
 Distances:
     maps are 4320x2160px
