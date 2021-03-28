@@ -1,12 +1,10 @@
 Todo
+
 - alphabeta pruning
     - https://stackabuse.com/minimax-and-alpha-beta-pruning-in-python/
 
-
 - allow AI to turn
     - only turn _towards_ opponent, outside turns.
-    - turning away feels like it will lead to infinite computation times
-    - consider inside turns at a later time
 - allow player to turn
 
 - change rules to win if you have a corner pointed at enemy ship
@@ -27,6 +25,11 @@ Todo
 - "opening book" to automate early moves based on fleet characteristics
 - "finishing book" to automate turn in/turn out decision
 
+- add more ships and stats
+
+Far Future?
+- allow AI to turn out?
+- allow AI to do inside turns?
 
 Tech Debt:
 - arcs and ship scaling may not be the same as map because it's scaled seperately

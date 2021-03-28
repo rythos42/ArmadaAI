@@ -62,9 +62,9 @@ while not the_game.is_finished() and running:
             pressed_key = event.key
 
     if player_turn_id == 0:
-        (unused_value, distance) = the_game.get_best_move_for_first_player()
-        the_game.do_move(first_player_ship, distance)
-        print(f"Turn {the_game.player_turn}: {first_player_ship.name} moved {distance} to {first_player_ship.rect.y}. {second_player_ship.name} is at {second_player_ship.rect.y}. ")
+        (unused_value, move) = the_game.get_best_move_for_first_player()
+        the_game.do_move(first_player_ship, move)
+        print(f"Turn {the_game.player_turn}: {first_player_ship.name} moved {move} to {first_player_ship.rect.y}. {second_player_ship.name} is at {second_player_ship.rect.y}. ")
     else:
         player_distance = 0
 

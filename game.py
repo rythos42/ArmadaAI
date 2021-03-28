@@ -53,11 +53,10 @@ class Game:
         self.write_ai_log_file(f"No winner yet.")
         return None
 
-    def do_move(self, ship, distance):
-        if(ship.player_id == self.first_player_ship.player_id):
-            self.first_player_ship.move(distance)
-        else:
-            self.second_player_ship.move(distance)
+    def do_move(self, ship, move):
+        for move_item in move:
+            ship.move(1)
+            ship.yaw(move_item[1])
         self.player_turn = self.player_turn + 1
 
     def clone(self):
@@ -99,54 +98,52 @@ class Game:
 
     def get_best_move_for_first_player(self):
         max_game_value = -2
-        distance = None
+        move = None
 
         if(self.is_finished()):
             self.write_ai_log_file("Finished")
             return self.evaluate()
 
-        for trying_distance in range(1, 4):
+        for trying_move in self.first_player_ship.get_available_moves():
             imaginary_game = self.clone()
-            imaginary_game.do_move(imaginary_game.first_player_ship, trying_distance)
+            imaginary_game.do_move(imaginary_game.first_player_ship, trying_move)
 
-            self.write_ai_log_file(f"Trying {trying_distance} for {self.first_player_ship.name}.")
+            self.write_ai_log_file(f"Trying {trying_move} for {self.first_player_ship.name}.")
 
             self.tabs = self.tabs + 1
-            (game_value, unused_min_distance) = imaginary_game.get_best_move_for_second_player()
+            (game_value, unused_move) = imaginary_game.get_best_move_for_second_player()
             self.tabs = self.tabs - 1
 
-            self.write_ai_log_file(
-                f"Distance {trying_distance} for {self.first_player_ship.name} got value {game_value}.")
+            self.write_ai_log_file(f"Move {trying_move} for {self.first_player_ship.name} got value {game_value}.")
 
             if game_value > max_game_value:
                 max_game_value = game_value
-                distance = trying_distance
+                move = trying_move
 
-        return (max_game_value, distance)
+        return (max_game_value, move)
 
     def get_best_move_for_second_player(self):
         min_game_value = 2
-        distance = None
+        move = None
 
         if(self.is_finished()):
             self.write_ai_log_file("Finished")
             return self.evaluate()
 
-        for trying_distance in range(1, 4):
-            self.write_ai_log_file(f"Trying {trying_distance} for {self.second_player_ship.name}.")
+        for trying_move in self.second_player_ship.get_available_moves():
+            self.write_ai_log_file(f"Trying {trying_move} for {self.second_player_ship.name}.")
             self.tabs = self.tabs + 1
 
             imaginary_game = self.clone()
-            imaginary_game.do_move(imaginary_game.second_player_ship, trying_distance)
+            imaginary_game.do_move(imaginary_game.second_player_ship, trying_move)
 
-            (game_value, unused_max_distance) = imaginary_game.get_best_move_for_first_player()
+            (game_value, unused_moved) = imaginary_game.get_best_move_for_first_player()
 
             self.tabs = self.tabs - 1
-            self.write_ai_log_file(
-                f"Distance {trying_distance} for {self.second_player_ship.name} got value {game_value}.")
+            self.write_ai_log_file(f"Move {trying_move} for {self.second_player_ship.name} got value {game_value}.")
 
             if game_value < min_game_value:
                 min_game_value = game_value
-                distance = trying_distance
+                move = trying_move
 
-        return (min_game_value, distance)
+        return (min_game_value, move)

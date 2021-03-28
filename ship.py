@@ -1,10 +1,13 @@
 import pygame
 import math
 import screen_board
+import copy
 
 
 class Ship(pygame.sprite.Sprite):
     show_arcs = False
+    maximum_speed = 2
+    available_yaws = [[], [-1, 0, 1], [-2, -1, 0, 1, 2]]
 
     def __init__(self, name, player_id, facing, ship, arcs, clone=False):
         self.name = name
@@ -22,6 +25,26 @@ class Ship(pygame.sprite.Sprite):
 
         self.rect = self.ship.get_rect()
         self.arcs_rect = self.arcs.get_rect()
+
+    def get_available_moves(self):
+        available_moves = self.__get_available_moves(1, [[]])
+        available_moves.remove([])
+        return available_moves
+
+    def __get_available_moves(self, current_speed, current_moves):
+        if(current_speed > self.maximum_speed):
+            return current_moves
+
+        new_moves = []
+
+        for base_move in current_moves:
+            for yaw in self.available_yaws[current_speed]:
+                new_move = copy.deepcopy(base_move)
+                new_move.append((current_speed, yaw))
+                new_moves.append(new_move)
+
+        current_moves.extend(self.__get_available_moves(current_speed + 1, new_moves))
+        return current_moves
 
     def is_overlapping(self, other_ship):
         return pygame.sprite.collide_mask(self, other_ship) != None
@@ -86,26 +109,19 @@ class Ship(pygame.sprite.Sprite):
         height_diff_one_side = (self.arcs_rect.height - self.rect.height) / 2
         self.arcs_rect.move_ip(screen_x - width_diff_one_side, screen_y - height_diff_one_side)
 
-    def yaw_left(self, clicks):
-        self.__yaw(clicks, "left")
-
-    def yaw_right(self, clicks):
-        self.__yaw(clicks, "right")
-
-    def __yaw(self, clicks, direction):
-        if(clicks == 1):
+    def yaw(self, clicks):
+        if(clicks == 0):
+            return
+        elif(clicks == -1):
+            degrees = -20
+        elif(clicks == 1):
             degrees = 20
+        elif(clicks == -2):
+            degrees = -45
         elif(clicks == 2):
             degrees = 45
         else:
-            raise ValueError("`clicks` can only be 1 or 2.")
-
-        if(direction == "left"):
-            pass
-        elif(direction == "right"):
-            degrees = degrees * -1
-        else:
-            raise ValueError("`direction` can only be `left` or `right`.")
+            raise ValueError("`clicks` can only be -2, -1, 0, 1 or 2.")
 
         # update the facing, keep the number below 360deg
         self.facing = (self.facing + degrees) % 360
@@ -122,7 +138,7 @@ class Ship(pygame.sprite.Sprite):
         new_rect.y = new_rect.y - opposite
 
         # place the edge we rotated around at the edge of the original rect
-        if(direction == "right"):
+        if(degrees > 0):
             new_rect.x = self.rect.x if upsidedown else self.rect.right - new_rect.width
         else:
             new_rect.x = self.rect.x if not upsidedown else self.rect.right - new_rect.width
