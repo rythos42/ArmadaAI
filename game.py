@@ -1,14 +1,12 @@
-class Game:
-    # incremented each time a player takes a move
-    # 0, 2, 4, 6, 8, 10 are first_player_ship turns and 1, 3, 5, 7, 9, 11 are second_player_ship turns
-    player_turn = 0
-    ai_log_file = None
-    tabs = 0
-    is_writing_ai_log_file = False
+import math
 
-    def __init__(self, first_player_ship, second_player_ship):
+
+class Game:
+    def __init__(self, first_player_ship, second_player_ship, player_turn, logger):
         self.first_player_ship = first_player_ship
         self.second_player_ship = second_player_ship
+        self.logger = logger
+        self.player_turn = player_turn
 
     def is_finished(self):
         return (self.first_player_ship.is_overlapping(self.second_player_ship)
@@ -59,13 +57,7 @@ class Game:
         self.player_turn = self.player_turn + 1
 
     def clone(self):
-        clone_game = Game(self.first_player_ship.clone(),
-                          self.second_player_ship.clone())
-        clone_game.player_turn = self.player_turn
-        clone_game.tabs = self.tabs
-        clone_game.ai_log_file = self.ai_log_file
-        clone_game.is_writing_ai_log_file = self.is_writing_ai_log_file
-        return clone_game
+        return Game(self.first_player_ship.clone(), self.second_player_ship.clone(), self.player_turn, self.logger)
 
     def evaluate(self):
         winner_ship = self.get_winner_ship()
@@ -79,21 +71,8 @@ class Game:
             self.write_ai_log_file(f"Returning (-1, 0).")
             return (-1, 0)
 
-    def set_using_ai_log_file(self, using_ai_log_file):
-        self.is_writing_ai_log_file = using_ai_log_file
-
     def write_ai_log_file(self, message):
-        if(not self.is_writing_ai_log_file):
-            return
-
-        if(self.ai_log_file == None):
-            self.ai_log_file = open("ai.log", "w")
-
-        current_tabs = self.get_tabs()
-        self.ai_log_file.write(f"{current_tabs}{message}\n")
-
-    def get_tabs(self):
-        return "".rjust(self.tabs, "\t")
+        self.logger.write(message)
 
     def get_best_move_for_first_player(self):
         return self.__get_best_move_for_first_player(-2, 2)
@@ -107,16 +86,22 @@ class Game:
             return self.evaluate()
 
         for trying_move in self.first_player_ship.get_available_moves():
+            self.write_ai_log_file(
+                f"Trying {trying_move} for {self.first_player_ship.name} at turn {self.player_turn}.")
+
             imaginary_game = self.clone()
             imaginary_game.do_move(imaginary_game.first_player_ship, trying_move)
 
-            self.write_ai_log_file(f"Trying {trying_move} for {self.first_player_ship.name}.")
+            if(self.__does_move_turn_away(self.first_player_ship, imaginary_game.first_player_ship, self.second_player_ship)):
+                self.write_ai_log_file("Move turned away, discounting.")
+                continue
 
-            self.tabs = self.tabs + 1
+            self.logger.increment_tabs()
             (game_value, unused_move) = imaginary_game.__get_best_move_for_second_player(alpha, beta)
-            self.tabs = self.tabs - 1
+            self.logger.decrement_tabs()
 
-            self.write_ai_log_file(f"Move {trying_move} for {self.first_player_ship.name} got value {game_value}.")
+            self.write_ai_log_file(
+                f"Move {trying_move} at turn {self.player_turn} for {self.first_player_ship.name} got value {game_value}.")
 
             if (game_value > max_game_value):
                 max_game_value = game_value
@@ -139,16 +124,22 @@ class Game:
             return self.evaluate()
 
         for trying_move in self.second_player_ship.get_available_moves():
-            self.write_ai_log_file(f"Trying {trying_move} for {self.second_player_ship.name}.")
-            self.tabs = self.tabs + 1
+            self.write_ai_log_file(
+                f"Trying {trying_move} for {self.second_player_ship.name} at turn {self.player_turn}.")
 
             imaginary_game = self.clone()
             imaginary_game.do_move(imaginary_game.second_player_ship, trying_move)
 
-            (game_value, unused_moved) = imaginary_game.get_best_move_for_first_player()
+            if(self.__does_move_turn_away(self.second_player_ship, imaginary_game.second_player_ship, self.first_player_ship)):
+                self.write_ai_log_file("Move turned away, discounting.")
+                continue
 
-            self.tabs = self.tabs - 1
-            self.write_ai_log_file(f"Move {trying_move} for {self.second_player_ship.name} got value {game_value}.")
+            self.logger.increment_tabs()
+            (game_value, unused_moved) = imaginary_game.__get_best_move_for_first_player(alpha, beta)
+            self.logger.decrement_tabs()
+
+            self.write_ai_log_file(
+                f"Move {trying_move} at turn {self.player_turn} for {self.second_player_ship.name} got value {game_value}.")
 
             if(game_value < min_game_value):
                 min_game_value = game_value
@@ -161,3 +152,22 @@ class Game:
                 beta = min_game_value
 
         return (min_game_value, move)
+
+    def does_move_turn_away(self, player_ship_original, player_ship_final, opponent_ship):
+        return self.__does_move_turn_away(player_ship_original, player_ship_final, opponent_ship)
+
+    def __does_move_turn_away(self, player_ship_original, player_ship_final, opponent_ship):
+        # This is a really naive plan that only checks if the distance of the shorter of the nearest and furthest corners of the ships has increased
+        original_corner_distance_1 = math.hypot(
+            player_ship_original.rect.right - opponent_ship.rect.left, player_ship_original.rect.y - opponent_ship.rect.y)
+        original_corner_distance_2 = math.hypot(
+            player_ship_original.rect.left - opponent_ship.rect.right, player_ship_original.rect.y - opponent_ship.rect.y)
+        shortest_original_distance = min(original_corner_distance_1, original_corner_distance_2)
+
+        final_corner_distance_1 = math.hypot(
+            player_ship_final.rect.right - opponent_ship.rect.left, player_ship_final.rect.y - opponent_ship.rect.y)
+        final_corner_distance_2 = math.hypot(
+            player_ship_final.rect.left - opponent_ship.rect.right, player_ship_final.rect.y - opponent_ship.rect.y)
+        shortest_final_distance = min(final_corner_distance_1, final_corner_distance_2)
+
+        return shortest_final_distance > shortest_original_distance

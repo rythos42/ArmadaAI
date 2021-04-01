@@ -1,4 +1,8 @@
 Todo
+How do disallow "turning out"?
+    determine where _any_ opponent is
+    remove all action options that don't turn towards any opponent
+
 - move ships to start at a "post-opening book" position?
 - allow AI to turn, only towards opponent
 - allow player to turn

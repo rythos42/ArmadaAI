@@ -3,6 +3,7 @@ import pygame
 import screen_board
 from ship import Ship
 from game import Game
+from logger import Logger
 
 
 pygame.init()
@@ -24,22 +25,48 @@ ship = pygame.transform.scale(ship, (int(original_ship_rect.width / screen_board
 arcs = pygame.transform.scale(arcs, (int(original_arcs_rect.width / screen_board.SCALING),
                                      int(original_arcs_rect.height / screen_board.SCALING)))
 
-first_ship_x = screen_board.SCREEN_MIDDLE
-second_ship_x = screen_board.SCREEN_MIDDLE
 
 first_player_ship = Ship("First", 0, 180, ship, arcs)
 second_player_ship = Ship("Second", 1, 0, ship, arcs)
-first_player_ship.place(first_ship_x, screen_board.SCREEN_DISTANCE_3_TOP - first_player_ship.rect.height)
-second_player_ship.place(second_ship_x, screen_board.SCREEN_DISTANCE_3_BOTTOM)
 
-the_game = Game(first_player_ship, second_player_ship)
-# the_game.set_using_ai_log_file(False)
+top_yaw_1_left_ship = Ship("Top yaw left 1", 2, 180, ship, arcs)
+top_yaw_1_right_ship = Ship("Top yaw right 1", 3, 180, ship, arcs)
+bottom_yaw_1_left_ship = Ship("Bottom yaw left 1", 4, 0, ship, arcs)
+bottom_yaw_1_right_ship = Ship("Bottom yaw right 1", 5, 0, ship, arcs)
+
+# ships = [first_player_ship, second_player_ship, top_yaw_1_left_ship,
+#         top_yaw_1_right_ship, bottom_yaw_1_left_ship, bottom_yaw_1_right_ship]
+ships = [first_player_ship, second_player_ship]
+
+first_player_ship.place(screen_board.SCREEN_MIDDLE, screen_board.SCREEN_DISTANCE_3_TOP - first_player_ship.rect.height)
+top_yaw_1_left_ship.place(screen_board.SCREEN_MIDDLE, screen_board.SCREEN_DISTANCE_3_TOP -
+                          top_yaw_1_left_ship.rect.height)
+top_yaw_1_left_ship.move_yaw(-1)
+top_yaw_1_right_ship.place(screen_board.SCREEN_MIDDLE, screen_board.SCREEN_DISTANCE_3_TOP -
+                           top_yaw_1_right_ship.rect.height)
+top_yaw_1_right_ship.move_yaw(1)
+
+second_player_ship.place(screen_board.SCREEN_MIDDLE - 300, screen_board.SCREEN_DISTANCE_3_BOTTOM)
+bottom_yaw_1_left_ship.place(screen_board.SCREEN_MIDDLE - 300, screen_board.SCREEN_DISTANCE_3_BOTTOM)
+bottom_yaw_1_left_ship.move_yaw(-1)
+bottom_yaw_1_right_ship.place(screen_board.SCREEN_MIDDLE - 300, screen_board.SCREEN_DISTANCE_3_BOTTOM)
+bottom_yaw_1_right_ship.move_yaw(1)
+
+logger = Logger()
+logger.set_writing_log(True)
+the_game = Game(first_player_ship, second_player_ship, 0, logger)
+
+clone_ship = second_player_ship.clone()
+second_player_ship.move(0)
+second_player_ship.move(0)
+
+#print(the_game.does_move_turn_away(clone_ship, second_player_ship, first_player_ship))
 
 
 def draw_screen():
     screen.blit(map, (0, 0))
-    first_player_ship.draw(screen)
-    second_player_ship.draw(screen)
+    for ship in ships:
+        ship.draw(screen)
     pygame.draw.line(screen, screen_board.COLOUR_WHITE, (0, screen_board.SCREEN_DISTANCE_3_TOP),
                      (screen_board.SCREEN_WIDTH, screen_board.SCREEN_DISTANCE_3_TOP))
     pygame.draw.line(screen, screen_board.COLOUR_WHITE, (0, screen_board.SCREEN_DISTANCE_3_BOTTOM),
